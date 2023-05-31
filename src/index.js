@@ -1,13 +1,53 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+// import './index.css';
+import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer } from "react-toastify";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import {configureStore} from '@reduxjs/toolkit';
+import { Provider } from "react-redux";
+
+import { BrowserRouter } from "react-router-dom";
+import productReducer, { fetchProducts } from "./features/productSlice";
+import cartReducer, { getTotals } from "./features/cartSlice";
+import { productsApi } from "./features/productsAPI";
+import authReducer, { loadUser } from "./features/authSlice";
+import Routers from "./router/Routers";
+
+
+
+
+const store = configureStore({
+  reducer:{
+    products: productReducer,/* bcs of a typo {prducts} */
+    cart: cartReducer,
+    auth: authReducer,
+    [productsApi.reducerPath]: productsApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) => {
+   return getDefaultMiddleware().concat(productsApi.middleware)
+  }
+})
+
+store.dispatch(fetchProducts());
+store.dispatch(getTotals());
+store.dispatch(loadUser(null));
+
+
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter >
+    <Provider store={store}>
+      <ToastContainer/>
+      <App>
+        
+      </App>
+      </Provider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
